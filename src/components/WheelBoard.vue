@@ -1,21 +1,38 @@
 <template>
   <div id="wheel-board">
-    <div
-      v-for="slot in slots"
-      v-text="slot.value"
-      :key="slot.index"
-      class="board-slot"
-      :class="{'slot-unused': slot.state === 'unused'}"
-    ></div>
+    <div id="board-slots">
+      <BoardSlot
+        v-for="slot in slots"
+        :key="slot.index"
+        :text="slot.value"
+        :initialState="slot.state"
+        class="board-slot"
+      ></BoardSlot>
+    </div>
+    <div id="category">
+      <h1 v-text="category">Before & After</h1>
+      <SettingsPanel
+        v-on:puzzle-changed="updateText"
+        v-on:category-changed="updateCategory"
+      ></SettingsPanel>
+    </div>
   </div>
 </template>
 
 <script>
+import SettingsPanel from '@/components/SettingsPanel.vue';
+import BoardSlot from '@/components/BoardSlot.vue';
+
 export default {
+  components: {
+    SettingsPanel,
+    BoardSlot,
+  },
   data() {
     return {
       slots: [],
-      text: 'where the deer and the antelope play video games',
+      text: '',
+      category: '',
     };
   },
   mounted() {
@@ -24,6 +41,7 @@ export default {
   },
   methods: {
     fillSlots() {
+      this.slots = [];
       for (let index = 0; index < 56; index += 1) {
         this.slots.push({
           value: '',
@@ -85,6 +103,16 @@ export default {
         }
       });
     },
+    updateText(text) {
+      // console.log(event);
+      this.text = text;
+      this.fillSlots();
+      this.updateSlots();
+    },
+    updateCategory(category) {
+      // console.log(event);
+      this.category = category;
+    },
   },
 };
 </script>
@@ -99,14 +127,15 @@ html, body {
   display: flex;
   align-items: center;
 }
-#wheel-board {
+#board-slots {
   width: 100vw;
   display: grid;
   grid-template-columns: repeat(14, 7.14%);
   grid-template-rows: repeat(4, calc(100vw/14*1.368));
   background-color: #fff;
+  border: 4px solid #000;
 }
-#wheel-board > * {
+#board-slots > * {
   border: 4px solid #000;
 }
 .board-slot {
@@ -119,11 +148,30 @@ html, body {
   color: #000;
 
   &.board-slot:hover {
-    background-color: #adff2f;
+    // background-color: #adff2f;
+  }
+
+  &.slot-used {
+    cursor:pointer;
   }
 
   &.slot-unused {
     background-color: green;
+  }
+
+  &.slot-highlighted {
+    background-color: rgb(175, 219, 255);
+  }
+}
+#category {
+  background-color: #300560;
+  color: #fff;
+  padding: 15px;
+  position: relative;
+  min-height: 75px;
+  h1 {
+    margin: 0;
+    padding: 0;
   }
 }
 </style>
