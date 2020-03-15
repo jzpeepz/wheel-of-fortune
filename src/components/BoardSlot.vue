@@ -1,6 +1,6 @@
 <template>
   <div
-    v-text="revealed ? text : ''"
+    v-text="revealed && object !== null ? object.value : ''"
     :class="classObject"
     @click="reveal"
   ></div>
@@ -9,30 +9,31 @@
 <script>
 export default {
   props: {
-    text: {
-      type: String,
-      default: '',
-    },
-    initialState: {
-      type: String,
-      default: '',
+    object: {
+      type: Object,
+      default: null,
     },
   },
   mounted() {
-    this.state = this.initialState;
+    // this.object = this.initial;
   },
   computed: {
     classObject() {
       return {
-        'slot-used': this.text.trim().length > 0,
-        'slot-unused': this.text.trim().length === 0,
+        'slot-used': this.object !== null && this.object.value.trim().length > 0,
+        'slot-unused': this.object === null || this.object.value.trim().length === 0,
         'slot-highlighted': this.highlighted,
       };
     },
   },
+  watch: {
+    object(newObject) {
+      this.revealed = newObject.revealed;
+      this.highlighted = newObject.highlighted;
+    },
+  },
   data() {
     return {
-      state: '',
       revealed: false,
       highlighted: false,
     };

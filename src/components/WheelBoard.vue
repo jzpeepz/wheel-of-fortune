@@ -4,28 +4,33 @@
       <BoardSlot
         v-for="slot in slots"
         :key="slot.index"
-        :text="slot.value"
-        :initialState="slot.state"
+        :object="slot"
         class="board-slot"
       ></BoardSlot>
     </div>
     <div id="category">
-      <h1 v-text="category">Before & After</h1>
+      <h1 v-text="category"></h1>
       <SettingsPanel
-        v-on:puzzle-changed="updateText"
-        v-on:category-changed="updateCategory"
+        v-on:settings-changed="updateSettings"
       ></SettingsPanel>
     </div>
+    <LetterPanel
+      @letter-panel-clicked="highlightLetter"
+    ></LetterPanel>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 import SettingsPanel from '@/components/SettingsPanel.vue';
+import LetterPanel from '@/components/LetterPanel.vue';
 import BoardSlot from '@/components/BoardSlot.vue';
 
 export default {
   components: {
     SettingsPanel,
+    LetterPanel,
     BoardSlot,
   },
   data() {
@@ -43,10 +48,11 @@ export default {
     fillSlots() {
       this.slots = [];
       for (let index = 0; index < 56; index += 1) {
-        this.slots.push({
+        Vue.set(this.slots, index, {
           value: '',
           index,
-          state: 'unused',
+          revealed: false,
+          highlighted: false,
         });
       }
     },
@@ -94,24 +100,31 @@ export default {
 
       this.text = finalLines.join('');
 
+      // update slots
       Array.from(this.text).forEach((element, index) => {
-        this.slots[index].value = element;
-        if (element === ' ') {
-          this.slots[index].state = 'unused';
-        } else {
-          this.slots[index].state = 'used';
-        }
+        Vue.set(this.slots, index, {
+          value: element,
+          index,
+          revealed: false,
+          highlighted: false,
+        });
       });
     },
-    updateText(text) {
-      // console.log(event);
-      this.text = text;
+    updateSettings(settings) {
+      this.text = settings.puzzle;
+      this.category = settings.category;
       this.fillSlots();
       this.updateSlots();
     },
-    updateCategory(category) {
-      // console.log(event);
-      this.category = category;
+    highlightLetter(letter) {
+      this.slots = this.slots.map((slot) => {
+        const newSlot = JSON.parse(JSON.stringify(slot));
+        if (slot.value.toLowerCase() === letter) {
+          newSlot.highlighted = !slot.highlighted;
+          return newSlot;
+        }
+        return slot;
+      });
     },
   },
 };

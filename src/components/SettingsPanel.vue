@@ -8,7 +8,7 @@
           <textarea v-model="puzzle"></textarea>
         </div>
         <div class="form-group">
-          <label>Puzzle</label>
+          <label>Category</label>
           <select v-model="category">
             <option
               v-for="category in categories"
@@ -18,7 +18,14 @@
             ></option>
           </select>
         </div>
-        <button @click.prevent="toggleModal">Close Settings</button>
+        <div style="display: flex;">
+          <div style="width: 50%; padding-right: 5px;">
+            <button class="btn-primary" @click.prevent="updateSettings">Update Settings</button>
+          </div>
+          <div style="width: 50%; padding-left: 5px;">
+            <button @click.prevent="toggleModal">Cancel</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -30,7 +37,7 @@ export default {
     return {
       visible: false,
       puzzle: '',
-      category: 'Before & After',
+      category: '',
       categories: [
         'Around the House', 'Before & After', 'Best Seller(s)', 'Character(s)', 'Classic TV', 'College Life',
         'Event(s)', 'Family', 'Fun & Games', 'Food & Drink', 'Headline', 'Husband & Wife', 'In the Kitchen',
@@ -42,10 +49,16 @@ export default {
     };
   },
   methods: {
+    updateSettings() {
+      this.$emit('settings-changed', {
+        puzzle: this.puzzle,
+        category: this.category,
+      });
+
+      this.toggleModal();
+    },
     toggleModal() {
       this.visible = !this.visible;
-      this.$emit('puzzle-changed', this.puzzle);
-      this.$emit('category-changed', this.category);
     },
   },
 };
@@ -107,6 +120,11 @@ export default {
     border-radius: 4px;
     font-size: 1rem;
     cursor: pointer;
+
+    &.btn-primary {
+      background-color: #300560;
+      color: #fff;
+    }
   }
 }
 </style>
